@@ -16,4 +16,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'auth0-gradle-oss-library'
+rootProject.name = 'oss-library'

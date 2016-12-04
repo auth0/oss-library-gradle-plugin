@@ -2,6 +2,7 @@ package com.auth0.gradle.oss.extensions
 
 class Library {
     String name
-    String repo
+    String organization
+    String repository
     String description
 }

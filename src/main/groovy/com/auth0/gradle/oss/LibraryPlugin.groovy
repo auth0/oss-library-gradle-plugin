@@ -21,11 +21,11 @@ class LibraryPlugin implements Plugin<Project> {
 
     private void java(Project project) {
         project.configure(project) {
-            task("sourcesJar", type: Jar, dependsOn: classes) {
+            task('sourcesJar', type: Jar, dependsOn: classes) {
                 classifier = 'sources'
                 from sourceSets.main.allSource
             }
-            task("javadocJar", type: Jar, dependsOn: Javadoc) {
+            task('javadocJar', type: Jar, dependsOn: Javadoc) {
                 classifier = 'javadoc'
                 from Javadoc.getDestinationDir()
             }
@@ -79,13 +79,13 @@ class LibraryPlugin implements Plugin<Project> {
 
                     def licenceNode = root.appendNode('licenses').appendNode('license')
                     licenceNode.appendNode('name', 'The MIT License (MIT)')
-                    licenceNode.appendNode('url', "https://raw.githubusercontent.com/auth0/${lib.repo}/master/LICENSE")
+                    licenceNode.appendNode('url', "https://raw.githubusercontent.com/${lib.organization}/${lib.repository}/master/LICENSE")
                     licenceNode.appendNode('distribution', 'repo')
 
                     def scmNode = root.appendNode('scm')
-                    scmNode.appendNode('connection', "scm:git@github.com:auth0/${lib.repo}.git")
-                    scmNode.appendNode('developerConnection', "scm:git@github.com:auth0/${lib.repo}.git")
-                    scmNode.appendNode('url', "https://github.com/auth0/${lib.repo}")
+                    scmNode.appendNode('connection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
+                    scmNode.appendNode('developerConnection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
+                    scmNode.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
                 }
             }
         }
