@@ -21,6 +21,7 @@ class LibraryPlugin implements Plugin<Project> {
 
     private void java(Project project) {
         project.configure(project) {
+            project.pluginManager.apply('java')
             task('sourcesJar', type: Jar, dependsOn: 'classes') {
                 classifier = 'sources'
                 from sourceSets.main.allSource
