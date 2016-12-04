@@ -1,14 +1,45 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.6'
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'idea'
+apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.5'
     compile gradleApi()
+    compile localGroovy()
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
     testCompile 'junit:junit:4.12'
+}
+
+version = "0.1.0"
+group = "com.auth0.gradle"
+
+// The configuration example below shows the minimum required properties
+// configured to publish your plugin to the plugin portal
+pluginBundle {
+    website = 'https://github.com/auth0/oss-library-gradle-plugin'
+    vcsUrl = 'https://github.com/auth0/oss-library-gradle-plugin'
+    description = 'Gradle plugin to configure a Java/Android oss library'
+    tags = ['auth0', 'oss', 'java', 'build', 'android', 'publish']
+
+    plugins {
+        libraryPlugin {
+            id = 'com.auth0.gradle.oss-library'
+            displayName = 'Auth0 OSS library plugin'
+        }
+    }
 }
