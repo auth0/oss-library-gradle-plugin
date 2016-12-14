@@ -2,12 +2,15 @@ package com.auth0.gradle.oss
 
 import com.auth0.gradle.oss.extensions.Library
 import com.auth0.gradle.oss.extensions.Developer
+import com.auth0.gradle.oss.tasks.ChangeLogTask
+import com.auth0.gradle.oss.tasks.ReadmeTask
+import com.auth0.gradle.oss.tasks.ReleaseTask
+import com.auth0.gradle.oss.versioning.Semver
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.component.Artifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.api.tasks.javadoc.Javadoc
 
 class LibraryPlugin implements Plugin<Project> {
     @Override
@@ -17,18 +20,19 @@ class LibraryPlugin implements Plugin<Project> {
         project.pluginManager.apply('maven-publish')
         java(project)
         maven(project)
+        release(project)
     }
 
     private void java(Project project) {
+        project.pluginManager.apply('java')
         project.configure(project) {
-            project.pluginManager.apply('java')
             task('sourcesJar', type: Jar, dependsOn: 'classes') {
                 classifier = 'sources'
                 from sourceSets.main.allSource
             }
-            task('javadocJar', type: Jar, dependsOn: Javadoc) {
+            task('javadocJar', type: Jar, dependsOn: javadoc) {
                 classifier = 'javadoc'
-                from Javadoc.getDestinationDir()
+                from javadoc.getDestinationDir()
             }
 
             artifacts {
@@ -89,6 +93,36 @@ class LibraryPlugin implements Plugin<Project> {
                     scmNode.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
                 }
             }
+        }
+    }
+
+    private void release(Project project) {
+        def semver = Semver.current()
+        project.version = semver.stringVersion
+        def version = semver.version
+        def nextMinor = semver.nextMinor()
+        def nextPatch = semver.nextPatch()
+        project.task('changelogMinor', type: ChangeLogTask) {
+            current = version
+            next = nextMinor
+        }
+        project.task('changelogPatch', type: ChangeLogTask) {
+            current = version
+            next = nextPatch
+        }
+        project.task('readmeMinor', type: ReadmeTask, dependsOn: 'changelogMinor') {
+            current = version
+            next = nextMinor
+        }
+        project.task('readmePatch', type: ReadmeTask, dependsOn: 'changelogPatch') {
+            current = version
+            next = nextPatch
+        }
+        project.task('releaseMinor', type: ReleaseTask, dependsOn: 'readmeMinor') {
+            tagName = nextMinor
+        }
+        project.task('releasePatch', type: ReleaseTask, dependsOn: 'readmePatch') {
+            tagName = nextPatch
         }
     }
 }
