@@ -1,7 +1,8 @@
 package com.auth0.gradle.oss
 
-import com.auth0.gradle.oss.extensions.Library
+import com.auth0.gradle.oss.credentials.BintrayCredentials
 import com.auth0.gradle.oss.extensions.Developer
+import com.auth0.gradle.oss.extensions.Library
 import com.auth0.gradle.oss.tasks.ChangeLogTask
 import com.auth0.gradle.oss.tasks.ReadmeTask
 import com.auth0.gradle.oss.tasks.ReleaseTask
@@ -21,6 +22,7 @@ class LibraryPlugin implements Plugin<Project> {
         java(project)
         maven(project)
         release(project)
+        bintray(project)
     }
 
     private void java(Project project) {
@@ -123,6 +125,39 @@ class LibraryPlugin implements Plugin<Project> {
         }
         project.task('releasePatch', type: ReleaseTask, dependsOn: 'readmePatch') {
             tagName = nextPatch
+        }
+    }
+
+    private void bintray(Project project) {
+        def credentials = new BintrayCredentials(project)
+
+        if (credentials.valid()) {
+            project.pluginManager.apply('com.jfrog.bintray')
+            project.configure(project) {
+                bintray {
+                    user = credentials.user
+                    key = credentials.key
+                    publications = ['mavenJava']
+                    dryRun = project.version.endsWith("-SNAPSHOT")
+                    publish = false
+                    pkg {
+                        repo = 'java'
+                        name = 'java-jwt'
+                        licenses = ["MIT"]
+                        userOrg = 'auth0'
+                        publish = false
+                        version {
+                            gpg {
+                                sign = true
+                                passphrase = credentials.passphrasse
+                            }
+                            vcsTag = project.version
+                            name = project.version
+                            released = new Date()
+                        }
+                    }
+                }
+            }
         }
     }
 }

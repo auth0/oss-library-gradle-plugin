@@ -15,7 +15,7 @@ class LibraryPluginTest extends Specification {
 
     void setup() {
         project = ProjectBuilder.builder().build()
-        project.pluginManager.apply('com.auth0.gradle.java-oss-library')
+        project.pluginManager.apply('com.auth0.gradle.oss-library.java')
     }
 
     @Unroll
