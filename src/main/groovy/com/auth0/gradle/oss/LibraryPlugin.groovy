@@ -18,7 +18,6 @@ class LibraryPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
-        project.pluginManager.apply('maven-publish')
         java(project)
         maven(project)
         release(project)
@@ -26,9 +25,10 @@ class LibraryPlugin implements Plugin<Project> {
     }
 
     private void java(Project project) {
-        project.pluginManager.apply('java')
         project.configure(project) {
-            task('sourcesJar', type: Jar, dependsOn: 'classes') {
+            apply plugin: 'java'
+            apply plugin: 'maven-publish'
+            task('sourcesJar', type: Jar, dependsOn: classes) {
                 classifier = 'sources'
                 from sourceSets.main.allSource
             }
