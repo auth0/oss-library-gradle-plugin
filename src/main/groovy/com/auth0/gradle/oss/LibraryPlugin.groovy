@@ -9,7 +9,6 @@ import com.auth0.gradle.oss.tasks.ReleaseTask
 import com.auth0.gradle.oss.versioning.Semver
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.component.Artifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 
@@ -18,9 +17,9 @@ class LibraryPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
+        release(project)
         java(project)
         maven(project)
-        release(project)
         bintray(project)
     }
 
