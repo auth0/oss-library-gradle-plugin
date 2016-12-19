@@ -149,7 +149,7 @@ class LibraryPlugin implements Plugin<Project> {
                     publish = false
                     pkg {
                         repo = 'java'
-                        name = 'java-jwt'
+                        name = project.name
                         licenses = ["MIT"]
                         userOrg = 'auth0'
                         publish = false
