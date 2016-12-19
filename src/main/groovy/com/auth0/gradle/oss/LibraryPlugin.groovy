@@ -69,8 +69,8 @@ class LibraryPlugin implements Plugin<Project> {
                     def developersNode = root.appendNode('developers')
                     project.extensions.oss.developers.each {
                         def node = developersNode.appendNode('developer')
-                        node.appendNode('id', it.id)
-                        node.appendNode('name', it.name)
+                        node.appendNode('id', it.name)
+                        node.appendNode('name', it.displayName)
                         node.appendNode('email', it.email)
                     }
 
