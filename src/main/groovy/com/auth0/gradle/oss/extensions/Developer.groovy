@@ -1,7 +1,7 @@
 package com.auth0.gradle.oss.extensions
 
 class Developer {
-    String name
+    final String name
     String displayName
     String email
 
