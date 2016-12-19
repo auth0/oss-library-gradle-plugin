@@ -44,7 +44,7 @@ class LibraryPlugin implements Plugin<Project> {
             publishing {
                 publications {
                     mavenJava(MavenPublication) {
-                        from components.java
+                        artifact("$buildDir/libs/${project.name}-${project.version}.jar")
                         artifact sourcesJar
                         artifact javadocJar
                         groupId project.group
@@ -82,6 +82,14 @@ class LibraryPlugin implements Plugin<Project> {
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
                         dependencyNode.appendNode('version', it.version)
+                    }
+
+                    configurations.compileOnly.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        dependencyNode.appendNode('scope', 'provided')
                     }
 
                     def licenceNode = root.appendNode('licenses').appendNode('license')
