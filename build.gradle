@@ -32,7 +32,12 @@ compileJava {
     targetCompatibility '1.7'
 }
 
-version = "0.2.1"
+compileGroovy {
+    sourceCompatibility '1.7'
+    targetCompatibility '1.7'
+}
+
+version = "0.2.2"
 group = "com.auth0.gradle"
 
 // The configuration example below shows the minimum required properties
