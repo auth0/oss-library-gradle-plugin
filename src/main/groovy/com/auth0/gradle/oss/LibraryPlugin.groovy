@@ -16,7 +16,7 @@ class LibraryPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.extensions.create('oss', Library)
-        project.oss.extensions.developers = project.container(Developer)
+        project.extensions.developers = project.container(Developer)
         release(project)
         java(project)
         maven(project)
@@ -67,7 +67,7 @@ class LibraryPlugin implements Plugin<Project> {
                     root.appendNode('description', lib.description)
 
                     def developersNode = root.appendNode('developers')
-                    project.extensions.oss.developers.each {
+                    project.extensions.developers.each {
                         def node = developersNode.appendNode('developer')
                         node.appendNode('id', it.name)
                         node.appendNode('name', it.displayName)
