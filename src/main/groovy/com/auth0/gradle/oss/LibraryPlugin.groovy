@@ -45,8 +45,8 @@ class LibraryPlugin implements Plugin<Project> {
                 publications {
                     mavenJava(MavenPublication) {
                         from components.java
-                        Artifact sourcesJar
-                        Artifact javadocJar
+                        artifact sourcesJar
+                        artifact javadocJar
                         groupId project.group
                         artifactId project.name
                         version project.version
