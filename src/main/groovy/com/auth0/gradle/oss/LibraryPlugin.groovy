@@ -76,14 +76,18 @@ class LibraryPlugin implements Plugin<Project> {
 
                     def dependenciesNode = root.appendNode('dependencies')
 
+                    def compileArtifacts = []
                     configurations.compile.allDependencies.each {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
                         dependencyNode.appendNode('version', it.version)
+                        compileArtifacts.add("${it.group}:${it.name}")
                     }
 
-                    configurations.compileOnly.allDependencies.each {
+                    configurations.compileOnly.allDependencies.findAll {
+                        !compileArtifacts.contains("${it.group}:${it.name}")
+                    }.each {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
