@@ -1,27 +1,89 @@
 package com.auth0.gradle.oss.versioning
 
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logging
 
-import javax.print.attribute.standard.Severity
-
 class Semver {
-    String version
-    def snapshot
+    @Lazy String version = {
+        def stable = "$major.$minor.$patch"
+        if (snapshot) {
+            return "$stable-SNAPSHOT"
+        }
+        if (prerelease != null) {
+            stable += "-$prerelease.$prereleaseCount"
+        }
+        stable
+    } ()
+    @Lazy String nonSnapshot = {
+        def stable = "$major.$minor.$patch"
+        if (prerelease != null) {
+            stable += "-$prerelease.$prereleaseCount"
+        }
+        stable
+    } ()
+    boolean snapshot
+    String major
+    String minor
+    String patch
+    String prerelease
+    String prereleaseCount
 
-    def getStringVersion() {
-        return snapshot ?  "$version-SNAPSHOT" : version
+    Semver(String version, boolean snapshot) {
+        this.snapshot = snapshot
+        def matcher = version =~ /(\d+)\.(\d+)\.(\d+)(?:-(\w+)\.(\d+))?/
+        if (!matcher.matches()) {
+            throw new GradleException("Version $version is not valid")
+        }
+        this.major = matcher.group(1)
+        this.minor = matcher.group(2)
+        this.patch = matcher.group(3)
+        this.prerelease = matcher.group(4)
+        this.prereleaseCount = matcher.group(5)
     }
 
-    def nextPatch() {
-        def parts = version.split("\\.")
-        def patch = Integer.parseInt(parts[2]) + 1
-        return "${parts[0]}.${parts[1]}.${patch}"
+    String nextPatch(String prerelease = null) {
+        def patch = Integer.parseInt(this.patch) + 1
+        def stable = "$major.$minor.$patch"
+        if (prerelease != null) {
+            stable += "-$prerelease.1"
+        }
+        stable
     }
 
-    def nextMinor() {
-        def parts = version.split("\\.")
-        def minor = Integer.parseInt(parts[1]) + 1
-        return "${parts[0]}.${minor}.0"
+    String nextMinor(String prerelease = null) {
+        def minor = Integer.parseInt(this.minor) + 1
+        def stable = "$major.$minor.0"
+        if (prerelease != null) {
+            stable += "-$prerelease.1"
+        }
+        stable
+    }
+
+    String nextMajor(String prerelease = null) {
+        def major = Integer.parseInt(this.major) + 1
+        def stable = "$major.0.0"
+        if (prerelease != null) {
+            stable += "-$prerelease.1"
+        }
+        stable
+    }
+
+    boolean isStable() {
+        return this.prerelease == null
+    }
+
+    String nextPrerelease() {
+        if (isStable()) {
+            throw new GradleException("Version $version is stable")
+        }
+        def count = Integer.parseInt(this.prereleaseCount) + 1
+        return "$major.$minor.$patch-$prerelease.$count"
+    }
+
+
+    @Override
+    String toString() {
+        return version
     }
 
     static Semver current() {
@@ -30,7 +92,7 @@ class Semver {
         if (snapshot) {
             current = describeGit(snapshot, '0.0.1')
         }
-        return new Semver(snapshot: snapshot, version: current)
+        return new Semver(current, snapshot)
     }
 
     static describeGit(boolean snapshot, String defaultValue = null) {

@@ -4,7 +4,6 @@ import com.auth0.gradle.oss.extensions.Developer
 import com.auth0.gradle.oss.extensions.Library
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.jvm.tasks.Jar
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -51,7 +50,7 @@ class LibraryPluginTest extends Specification {
     def "oss extension"() {
         expect:
         project.extensions.getByName("oss") instanceof Library
-        project.oss.extensions.getByName("developers") instanceof NamedDomainObjectContainer<Developer>
+        project.extensions.getByName("developers") instanceof NamedDomainObjectContainer<Developer>
     }
 
     @Unroll

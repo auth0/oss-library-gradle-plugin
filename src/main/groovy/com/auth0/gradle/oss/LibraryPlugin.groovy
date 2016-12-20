@@ -107,31 +107,45 @@ class LibraryPlugin implements Plugin<Project> {
 
     private void release(Project project) {
         def semver = Semver.current()
-        project.version = semver.stringVersion
-        def version = semver.version
+        project.version = semver.version
+        def version = semver.nonSnapshot
         def nextMinor = semver.nextMinor()
         def nextPatch = semver.nextPatch()
         project.task('changelogMinor', type: ChangeLogTask) {
             current = version
             next = nextMinor
         }
-        project.task('changelogPatch', type: ChangeLogTask) {
-            current = version
-            next = nextPatch
-        }
         project.task('readmeMinor', type: ReadmeTask, dependsOn: 'changelogMinor') {
             current = version
             next = nextMinor
+        }
+        project.task('releaseMinor', type: ReleaseTask, dependsOn: 'readmeMinor') {
+            tagName = nextMinor
+        }
+        project.task('changelogPatch', type: ChangeLogTask) {
+            current = version
+            next = nextPatch
         }
         project.task('readmePatch', type: ReadmeTask, dependsOn: 'changelogPatch') {
             current = version
             next = nextPatch
         }
-        project.task('releaseMinor', type: ReleaseTask, dependsOn: 'readmeMinor') {
-            tagName = nextMinor
-        }
         project.task('releasePatch', type: ReleaseTask, dependsOn: 'readmePatch') {
             tagName = nextPatch
+        }
+        if (!semver.isStable()) {
+            def nextPrerelease = semver.nextPrerelease()
+            project.task('changelogPrerelease', type: ChangeLogTask) {
+                current = version
+                next = nextPrerelease
+            }
+            project.task('readmePrerelease', type: ReadmeTask, dependsOn: 'changelogPrerelease') {
+                current = version
+                next = nextPrerelease
+            }
+            project.task('releasePrerelease', type: ReleaseTask, dependsOn: 'readmePrerelease') {
+                tagName = nextPrerelease
+            }
         }
     }
 
