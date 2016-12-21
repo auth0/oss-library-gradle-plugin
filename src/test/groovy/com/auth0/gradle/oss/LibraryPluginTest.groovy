@@ -50,7 +50,7 @@ class LibraryPluginTest extends Specification {
     def "oss extension"() {
         expect:
         project.extensions.getByName("oss") instanceof Library
-        project.extensions.getByName("developers") instanceof NamedDomainObjectContainer<Developer>
+        project.oss.extensions.getByName("developers") instanceof NamedDomainObjectContainer<Developer>
     }
 
     @Unroll
@@ -62,5 +62,32 @@ class LibraryPluginTest extends Specification {
         name | _
         "java" | _
         "maven-publish" | _
+    }
+
+    def "allows to set developers"() {
+        given:
+        project.configure(project) {
+            oss {
+                name 'auth0'
+                repository 'auth0-repo'
+                organization 'auth0'
+                description 'Auth0 Lib'
+                developers {
+                    auth0 {
+                        displayName = 'Auth0'
+                        email = 'oss@auth0.com'
+                    }
+                    hzalaz {
+                        displayName = 'hzalaz'
+                        email = 'hernan@auth0.com'
+                    }
+                }
+            }
+        }
+        def developers = project.oss.extensions.developers
+        expect:
+        developers.size() == 2
+        developers[0].name == 'auth0'
+        developers[1].name == 'hzalaz'
     }
 }
