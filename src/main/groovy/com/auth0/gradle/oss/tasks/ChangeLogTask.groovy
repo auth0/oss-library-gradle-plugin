@@ -13,7 +13,7 @@ class ChangeLogTask extends DefaultTask {
 
     @TaskAction
     void update() {
-        def repository = project.oss.repo
+        def repository = project.oss.repository
         def file = new File('CHANGELOG.md')
         def output = new File('CHANGELOG.md.release')
         output.newWriter().withWriter { writer ->
