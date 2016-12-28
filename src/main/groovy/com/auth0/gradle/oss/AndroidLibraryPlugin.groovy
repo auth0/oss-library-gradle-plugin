@@ -26,6 +26,30 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
     private void java(Project project) {
         project.configure(project) {
+            apply plugin: 'com.android.library'
+
+            android {
+                compileSdkVersion 25
+                buildToolsVersion '25.0.1'
+
+                defaultConfig {
+                    minSdkVersion 15
+                    targetSdkVersion 25
+                    versionCode 1
+                    versionName project.version
+                    buildConfigField "String", "LIBRARY_NAME", "\"$project.oss.name\""
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                lintOptions {
+                    warning 'InvalidPackage'
+                }
+            }
+
             apply plugin: 'maven-publish'
             task('sourcesJar', type: Jar) {
                 from android.sourceSets.main.java.srcDirs
