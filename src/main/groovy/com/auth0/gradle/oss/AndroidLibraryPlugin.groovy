@@ -64,10 +64,6 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 failOnError false
             }
 
-            afterEvaluate {
-                javadoc.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
-            }
-
             task('javadocJar', type: Jar, dependsOn: javadoc) {
                 classifier = 'javadoc'
                 from javadoc.destinationDir
