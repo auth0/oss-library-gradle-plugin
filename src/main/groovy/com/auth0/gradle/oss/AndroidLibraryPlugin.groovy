@@ -26,7 +26,6 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
     private void java(Project project) {
         project.configure(project) {
-            apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'
             task('sourcesJar', type: Jar) {
                 from android.sourceSets.main.java.srcDirs
