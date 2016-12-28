@@ -37,7 +37,7 @@ compileGroovy {
     targetCompatibility '1.7'
 }
 
-version = "0.4.1"
+version = "0.5.0"
 group = "com.auth0.gradle"
 
 // The configuration example below shows the minimum required properties
@@ -52,6 +52,10 @@ pluginBundle {
         javaLibraryPlugin {
             id = 'com.auth0.gradle.oss-library.java'
             displayName = 'Auth0 OSS library plugin for Java libs'
+        }
+        androidLibraryPlugin {
+            id = 'com.auth0.gradle.oss-library.android'
+            displayName = 'Auth0 OSS library plugin for Android Java libs'
         }
     }
 }
