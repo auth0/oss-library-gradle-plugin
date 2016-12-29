@@ -22,6 +22,9 @@ class AndroidLibraryPlugin implements Plugin<Project> {
         java(project)
         maven(project)
         bintray(project)
+        project.afterEvaluate {
+            javadoc.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
+        }
     }
 
     private void java(Project project) {
