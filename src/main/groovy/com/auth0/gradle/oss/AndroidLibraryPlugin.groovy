@@ -112,7 +112,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     def compileArtifacts = []
                     configurations.compile
                             .allDependencies
-                            .filter { it.group != null && !it.group.isEmpty() }
+                            .findAll { it.group != null && !it.group.isEmpty() }
                             .each {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
