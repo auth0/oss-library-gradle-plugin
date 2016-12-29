@@ -247,7 +247,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     group = "Reporting"
                     description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
 
-                    classDirectories = fileTree(
+                    classDirectories = project.fileTree(
                             dir: "${project.buildDir}/intermediates/classes/${name}",
                             excludes: ['**/R.class',
                                        '**/R$*.class',
@@ -257,8 +257,8 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                                        '**/Manifest*.*']
                     )
 
-                    sourceDirectories = files(['src/main/java'].plus(project.android.sourceSets[name].java.srcDirs))
-                    executionData = files("${project.buildDir}/jacoco/${testTaskName}.exec")
+                    sourceDirectories = project.files(['src/main/java'].plus(project.android.sourceSets[name].java.srcDirs))
+                    executionData = project.files("${project.buildDir}/jacoco/${testTaskName}.exec")
 
                     reports {
                         xml.enabled = true
