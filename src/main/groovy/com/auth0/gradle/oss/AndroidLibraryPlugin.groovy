@@ -37,7 +37,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     targetSdkVersion 25
                     versionCode 1
                     versionName project.version
-                    buildConfigField "String", "LIBRARY_NAME", "\"$project.extensions.oss.name\""
+                    buildConfigField "String", "LIBRARY_NAME", "\"$project.rootProject.name\""
                 }
                 buildTypes {
                     release {
