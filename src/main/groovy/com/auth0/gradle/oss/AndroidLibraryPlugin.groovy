@@ -119,16 +119,6 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                         compileArtifacts.add("${it.group}:${it.name}")
                     }
 
-                    configurations.compileOnly.allDependencies.findAll {
-                        !compileArtifacts.contains("${it.group}:${it.name}")
-                    }.each {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                        dependencyNode.appendNode('scope', 'provided')
-                    }
-
                     def licenceNode = root.appendNode('licenses').appendNode('license')
                     licenceNode.appendNode('name', 'The MIT License (MIT)')
                     licenceNode.appendNode('url', "https://raw.githubusercontent.com/${lib.organization}/${lib.repository}/master/LICENSE")
