@@ -24,8 +24,8 @@ class AndroidLibraryPlugin implements Plugin<Project> {
         bintray(project)
         project.afterEvaluate {
             project.javadoc.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
-            project.publishToMavenLocal.dependsOn assemble
-            project.bintrayUpload.dependsOn assemble
+            project.publishToMavenLocal.dependsOn project.assemble
+            project.bintrayUpload.dependsOn project.assemble
         }
     }
 
