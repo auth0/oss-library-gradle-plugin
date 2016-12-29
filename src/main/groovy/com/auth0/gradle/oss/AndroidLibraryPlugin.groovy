@@ -242,7 +242,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 def name = variant.name
                 def testTaskName = "test${name.capitalize()}UnitTest"
 
-                def reportTask = tasks.create(name: "jacocoTest${name.capitalize()}UnitTestReport", type: JacocoReport, dependsOn: "$testTaskName") {
+                def reportTask = project.tasks.create(name: "jacocoTest${name.capitalize()}UnitTestReport", type: JacocoReport, dependsOn: "$testTaskName") {
                     group = "Reporting"
                     description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
 
