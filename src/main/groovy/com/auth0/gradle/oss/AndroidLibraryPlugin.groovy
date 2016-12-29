@@ -231,14 +231,14 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
         project.afterEvaluate {
 
-            def jacocoTestReportTask = tasks.findByName("jacocoTestReport")
+            def jacocoTestReportTask = project.tasks.findByName("jacocoTestReport")
             if (!jacocoTestReportTask) {
-                jacocoTestReportTask = tasks.create("jacocoTestReport")
+                jacocoTestReportTask = project.tasks.create("jacocoTestReport")
                 jacocoTestReportTask.group = "Reporting"
                 jacocoTestReportTask.description = "Generate Jacoco coverage reports for all builds."
             }
 
-            android.libraryVariants.all { variant ->
+            project.android.libraryVariants.all { variant ->
                 def name = variant.name
                 def testTaskName = "test${name.capitalize()}UnitTest"
 
@@ -256,7 +256,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                                        '**/Manifest*.*']
                     )
 
-                    sourceDirectories = files(['src/main/java'].plus(android.sourceSets[name].java.srcDirs))
+                    sourceDirectories = files(['src/main/java'].plus(project.android.sourceSets[name].java.srcDirs))
                     executionData = files("${project.buildDir}/jacoco/${testTaskName}.exec")
 
                     reports {
