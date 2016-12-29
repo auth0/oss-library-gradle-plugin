@@ -88,14 +88,13 @@ class AndroidLibraryPlugin implements Plugin<Project> {
         }
     }
 
-    private void maven(Project project, String packaging = 'aar') {
+    private void maven(Project project) {
         def lib = project.extensions.oss
         project.configure(project) {
             publishing.publications.all {
                 pom.withXml {
                     def root = asNode()
 
-                    root.appendNode('packaging', packaging)
                     root.appendNode('name', lib.name)
                     root.appendNode('description', lib.description)
                     root.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
@@ -111,7 +110,10 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     def dependenciesNode = root.appendNode('dependencies')
 
                     def compileArtifacts = []
-                    configurations.compile.allDependencies.each {
+                    configurations.compile
+                            .allDependencies
+                            .filter { it.group != null && !it.group.isEmpty() }
+                            .each {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
