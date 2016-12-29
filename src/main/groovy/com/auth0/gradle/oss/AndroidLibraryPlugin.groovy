@@ -39,15 +39,6 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     versionName project.version
                     buildConfigField "String", "LIBRARY_NAME", "\"$project.rootProject.name\""
                 }
-                buildTypes {
-                    release {
-                        minifyEnabled false
-                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                    }
-                }
-                lintOptions {
-                    warning 'InvalidPackage'
-                }
             }
 
             apply plugin: 'maven-publish'
@@ -75,7 +66,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
             publishing {
                 publications {
-                    mavenAAR(MavenPublication) {
+                    androidLibrary(MavenPublication) {
                         artifact("$buildDir/outputs/aar/${project.name}-release.aar")
                         artifact sourcesJar
                         artifact javadocJar
@@ -188,7 +179,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 bintray {
                     user = credentials.user
                     key = credentials.key
-                    publications = ['mavenAAR']
+                    publications = ['androidLibrary']
                     dryRun = project.version.endsWith("-SNAPSHOT")
                     publish = false
                     pkg {
