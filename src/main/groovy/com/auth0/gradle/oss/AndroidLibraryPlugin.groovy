@@ -41,7 +41,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
             android {
                 compileSdkVersion 25
-                buildToolsVersion '25.0.1'
+                buildToolsVersion '25.0.2'
 
                 defaultConfig {
                     minSdkVersion 15
