@@ -194,7 +194,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     dryRun = project.version.endsWith("-SNAPSHOT")
                     publish = false
                     pkg {
-                        repo = 'lock-android'
+                        repo = 'android'
                         name = project.name
                         licenses = ["MIT"]
                         userOrg = 'auth0'
