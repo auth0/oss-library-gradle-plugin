@@ -38,14 +38,11 @@ class AndroidLibraryPlugin implements Plugin<Project> {
     private void java(Project project) {
         project.configure(project) {
             apply plugin: 'com.android.library'
-
             android {
-                compileSdkVersion 25
-                buildToolsVersion '25.0.2'
-
+                compileSdkVersion 28
                 defaultConfig {
                     minSdkVersion 15
-                    targetSdkVersion 25
+                    targetSdkVersion 28
                     versionCode 1
                     versionName project.version
                     buildConfigField "String", "LIBRARY_NAME", "\"$project.rootProject.name\""
