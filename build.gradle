@@ -14,7 +14,6 @@ apply plugin: 'idea'
 apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
-//    google()
     jcenter()
 }
 
@@ -38,7 +37,7 @@ compileGroovy {
     targetCompatibility '1.8'
 }
 
-version = "0.6.0"
+version = "0.7.0"
 group = "com.auth0.gradle"
 
 // The configuration example below shows the minimum required properties
