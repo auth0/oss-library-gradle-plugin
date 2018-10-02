@@ -14,13 +14,13 @@ class BintrayCredentials {
     }
 
     def valid() {
-        return this.user != null && this.key != null && this.passphrasse != null;
+        return this.user != null && this.key != null && this.passphrasse != null
     }
 
     private static def value(Project project, String env, String property) {
         def value = System.getenv(env)
         if (project.hasProperty(property)) {
-            value = project.getProperty(property);
+            value = project.getProperty(property)
         }
         return value
     }
