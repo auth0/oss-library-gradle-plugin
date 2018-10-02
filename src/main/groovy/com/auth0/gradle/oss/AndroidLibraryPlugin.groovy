@@ -38,14 +38,11 @@ class AndroidLibraryPlugin implements Plugin<Project> {
     private void java(Project project) {
         project.configure(project) {
             apply plugin: 'com.android.library'
-
             android {
-                compileSdkVersion 25
-                buildToolsVersion '25.0.2'
-
+                compileSdkVersion 28
                 defaultConfig {
                     minSdkVersion 15
-                    targetSdkVersion 25
+                    targetSdkVersion 28
                     versionCode 1
                     versionName project.version
                     buildConfigField "String", "LIBRARY_NAME", "\"$project.rootProject.name\""
@@ -220,7 +217,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
             jacoco {
                 // https://bintray.com/bintray/jcenter/org.jacoco:org.jacoco.core
-                toolVersion = "0.7.7.201606060606"
+                toolVersion = "0.8.2"
             }
 
             android {
