@@ -251,7 +251,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
 
                     classDirectories = project.fileTree(
-                            dir: "${project.buildDir}/intermediates/classes/${name}",
+                            dir: "${project.buildDir}/intermediates/javac/${name}",
                             excludes: ['**/R.class',
                                        '**/R$*.class',
                                        '**/*$ViewInjector*.*',
