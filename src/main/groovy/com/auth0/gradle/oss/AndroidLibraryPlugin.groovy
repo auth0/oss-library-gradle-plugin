@@ -9,6 +9,8 @@ import com.auth0.gradle.oss.tasks.ReleaseTask
 import com.auth0.gradle.oss.versioning.Semver
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
@@ -60,6 +62,11 @@ class AndroidLibraryPlugin implements Plugin<Project> {
             task('javadoc', type: Javadoc) {
                 source = android.sourceSets.main.java.srcDirs
                 classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+                android.libraryVariants.all { variant ->
+                    if (variant.name == 'release') {
+                        owner.classpath += variant.javaCompile.classpath
+                    }
+                }
                 exclude '**/BuildConfig.java'
                 exclude '**/R.java'
                 failOnError false
@@ -109,18 +116,42 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                     }
 
                     def dependenciesNode = root.appendNode('dependencies')
+                    def artifacts = []
 
-                    def compileArtifacts = []
-                    configurations.compile
-                            .allDependencies
-                            .findAll { it.group != null && !it.group.isEmpty() }
-                            .each {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                        compileArtifacts.add("${it.group}:${it.name}")
+                    ext.addDependency = { Dependency dep, String scope ->
+                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                            return // ignore invalid dependencies
+                        if (artifacts.contains("${dep.group}:${dep.name}"))
+                            return // ignore duplicates
+
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+                        artifacts.add("${dep.group}:${dep.name}")
+
+                        if (!dep.transitive) {
+                            // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            }
+                        }
                     }
+
+                    // List all "compile" dependencies (for Gradle < 3.x)
+                    configurations.compile.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "api" dependencies (for new Gradle) as "compile" dependencies
+                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
 
                     def licenceNode = root.appendNode('licenses').appendNode('license')
                     licenceNode.appendNode('name', 'The MIT License (MIT)')
