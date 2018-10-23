@@ -27,7 +27,7 @@ class LibraryPlugin implements Plugin<Project> {
 
     private void java(Project project) {
         project.configure(project) {
-            apply plugin: 'java'
+            apply plugin: 'java-library'
             apply plugin: 'maven-publish'
             task('sourcesJar', type: Jar, dependsOn: classes) {
                 classifier = 'sources'

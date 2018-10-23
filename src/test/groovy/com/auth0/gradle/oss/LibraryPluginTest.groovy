@@ -60,7 +60,7 @@ class LibraryPluginTest extends Specification {
 
         where:
         name | _
-        "java" | _
+        "java-library" | _
         "maven-publish" | _
     }
 
