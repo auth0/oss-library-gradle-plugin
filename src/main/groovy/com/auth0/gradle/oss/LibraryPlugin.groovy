@@ -55,6 +55,11 @@ class LibraryPlugin implements Plugin<Project> {
                 }
             }
         }
+        project.tasks.withType(Jar) {
+            manifest {
+                attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
+            }
+        }
     }
 
     private void maven(Project project, String packaging = 'jar') {
