@@ -27,7 +27,12 @@ class AndroidLibraryPlugin implements Plugin<Project> {
         bintray(project)
         jacoco(project)
         project.afterEvaluate {
-            project.javadoc.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
+            def variant = project.android.libraryVariants.toList().first()
+            if (variant.hasProperty('javaCompileProvider')) {
+                project.javadoc.classpath += variant.javaCompileProvider.get().classpath
+            } else {
+                project.javadoc.classpath += variant.javaCompile.classpath
+            }
             project.publishToMavenLocal.dependsOn project.assemble
             def bintrayUpload = project.tasks.findByName("bintrayUpload")
             if (bintrayUpload) {
@@ -64,7 +69,11 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
                 android.libraryVariants.all { variant ->
                     if (variant.name == 'release') {
-                        owner.classpath += variant.javaCompile.classpath
+                        if (variant.hasProperty('javaCompileProvider')) {
+                            owner.classpath += variant.javaCompileProvider.get().classpath
+                        } else {
+                            owner.classpath += variant.javaCompile.classpath
+                        }
                     }
                 }
                 exclude '**/BuildConfig.java'
