@@ -17,4 +17,3 @@ include 'services:webservice'
 */
 
 rootProject.name = 'oss-library'
-enableFeaturePreview('STABLE_PUBLISHING')
