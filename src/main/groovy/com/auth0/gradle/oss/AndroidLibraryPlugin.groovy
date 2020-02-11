@@ -259,7 +259,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
 
             jacoco {
                 // https://bintray.com/bintray/jcenter/org.jacoco:org.jacoco.core
-                toolVersion = "0.8.2"
+                toolVersion = "0.8.5"
             }
 
             android {
