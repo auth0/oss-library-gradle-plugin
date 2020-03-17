@@ -4,9 +4,14 @@ buildscript {
             url 'https://plugins.gradle.org/m2/'
         }
     }
+
     dependencies {
         classpath 'com.gradle.publish:plugin-publish-plugin:0.10.1'
     }
+}
+
+tasks.wrapper {
+    distributionType 'all'
 }
 
 apply plugin: 'groovy'
