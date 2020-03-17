@@ -17,6 +17,7 @@ import org.gradle.api.tasks.bundling.Jar
 class LibraryPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        project.rootProject.pluginManager.apply(RootProjectPlugin)
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
         release(project)

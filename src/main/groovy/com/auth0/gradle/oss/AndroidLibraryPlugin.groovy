@@ -19,6 +19,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 class AndroidLibraryPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        project.rootProject.pluginManager.apply(RootProjectPlugin)
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
         release(project)
