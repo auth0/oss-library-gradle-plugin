@@ -44,6 +44,16 @@ compileGroovy {
     targetCompatibility '1.7'
 }
 
+tasks.withType(Test).configureEach {
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        showStandardStreams = true
+        exceptionFormat 'full'
+    }
+}
+
 version = "0.11.0"
 group = "com.auth0.gradle"
 
