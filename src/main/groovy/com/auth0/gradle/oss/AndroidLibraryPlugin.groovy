@@ -14,11 +14,13 @@ import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
+import org.gradle.api.tasks.testing.Test
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 class AndroidLibraryPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        project.rootProject.pluginManager.apply(RootProjectPlugin)
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
         release(project)
@@ -100,6 +102,19 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                         artifactId project.name
                         version project.version
                     }
+                }
+            }
+
+            tasks.withType(Test).configureEach {
+                jacoco.includeNoLocationClasses = true
+                jacoco.excludes = ['jdk.internal.*']
+
+                maxParallelForks = Runtime.getRuntime().availableProcessors()
+
+                testLogging {
+                    events 'passed', 'failed', 'skipped'
+                    showStandardStreams = true
+                    exceptionFormat 'full'
                 }
             }
         }
