@@ -42,6 +42,7 @@ compileGroovy {
 }
 
 tasks.withType(ValidatePlugins).configureEach {
+    // TODO remove once these issues are fixed
     ignoreFailures.set(true)
 }
 

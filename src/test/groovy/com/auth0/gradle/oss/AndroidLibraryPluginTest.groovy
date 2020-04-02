@@ -58,6 +58,5 @@ class AndroidLibraryPluginTest extends Specification {
                 .withArguments("tasks", "--all")
                 .build()
         result.task(":tasks").outcome == TaskOutcome.SUCCESS
-        println(result.output)
     }
 }
