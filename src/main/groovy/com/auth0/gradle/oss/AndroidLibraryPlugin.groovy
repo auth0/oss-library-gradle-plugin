@@ -105,6 +105,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 }
             }
 
+            apply plugin: 'jacoco'
             tasks.withType(Test).configureEach {
                 jacoco.includeNoLocationClasses = true
                 jacoco.excludes = ['jdk.internal.*']
