@@ -14,8 +14,8 @@ tasks.wrapper {
     distributionType 'all'
 }
 
+apply plugin: 'java-gradle-plugin'
 apply plugin: 'groovy'
-apply plugin: 'idea'
 apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
@@ -24,9 +24,6 @@ repositories {
 }
 
 dependencies {
-    implementation gradleApi()
-    implementation localGroovy()
-
     testImplementation ("org.spockframework:spock-core:1.0-groovy-2.4") {
         exclude module: 'groovy-all'
     }
