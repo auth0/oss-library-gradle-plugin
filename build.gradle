@@ -41,11 +41,6 @@ compileGroovy {
     targetCompatibility '1.7'
 }
 
-tasks.withType(ValidatePlugins).configureEach {
-    // TODO remove once these issues are fixed
-    ignoreFailures.set(true)
-}
-
 tasks.withType(Test).configureEach {
     maxParallelForks = Runtime.getRuntime().availableProcessors()
 
