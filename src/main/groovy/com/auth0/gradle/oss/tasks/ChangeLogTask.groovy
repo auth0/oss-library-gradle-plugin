@@ -2,13 +2,16 @@ package com.auth0.gradle.oss.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 import java.text.SimpleDateFormat
 
 class ChangeLogTask extends DefaultTask {
 
+    @Input
     def current
+    @Input
     def next
 
     @TaskAction
