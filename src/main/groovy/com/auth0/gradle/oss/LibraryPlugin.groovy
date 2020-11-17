@@ -49,9 +49,6 @@ class LibraryPlugin implements Plugin<Project> {
                         artifact("$buildDir/libs/${project.name}-${project.version}.jar")
                         artifact sourcesJar
                         artifact javadocJar
-                        groupId project.group
-                        artifactId project.name
-                        version project.version
                     }
                 }
             }
