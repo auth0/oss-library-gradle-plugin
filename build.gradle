@@ -1,30 +1,21 @@
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-
-    dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.11.0'
-    }
+plugins {
+    id 'maven-publish'
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id "com.gradle.plugin-publish" version "0.12.0"
 }
-
-tasks.wrapper {
-    distributionType 'all'
-}
-
-apply plugin: 'java-gradle-plugin'
-apply plugin: 'groovy'
-apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
     google()
     jcenter()
 }
 
+tasks.wrapper {
+    distributionType 'all'
+}
+
 dependencies {
-    testImplementation ("org.spockframework:spock-core:1.0-groovy-2.4") {
+    testImplementation("org.spockframework:spock-core:1.0-groovy-2.4") {
         exclude module: 'groovy-all'
     }
     testImplementation "org.hamcrest:hamcrest-core:1.3"
@@ -51,8 +42,21 @@ tasks.withType(Test).configureEach {
     }
 }
 
-version = "0.12.1"
+version = "0.13.0"
 group = "com.auth0.gradle"
+
+gradlePlugin {
+    plugins {
+        javaLibraryPlugin {
+            id = 'com.auth0.gradle.oss-library.java'
+            implementationClass = 'com.auth0.gradle.oss.LibraryPlugin'
+        }
+        androidLibraryPlugin {
+            id = 'com.auth0.gradle.oss-library.android'
+            implementationClass = 'com.auth0.gradle.oss.AndroidLibraryPlugin'
+        }
+    }
+}
 
 // The configuration example below shows the minimum required properties
 // configured to publish your plugin to the plugin portal
