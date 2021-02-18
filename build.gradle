@@ -8,6 +8,7 @@ plugins {
 repositories {
     google()
     jcenter()
+    gradlePluginPortal()
 }
 
 tasks.wrapper {
@@ -15,6 +16,9 @@ tasks.wrapper {
 }
 
 dependencies {
+    implementation "me.champeau.gradle:japicmp-gradle-plugin:0.2.9"
+    // needed because of https://github.com/melix/japicmp-gradle-plugin/issues/36
+    implementation 'com.google.guava:guava:28.2-jre'
     testImplementation("org.spockframework:spock-core:1.0-groovy-2.4") {
         exclude module: 'groovy-all'
     }
@@ -42,7 +46,7 @@ tasks.withType(Test).configureEach {
     }
 }
 
-version = "0.13.0"
+version = "0.14.0"
 group = "com.auth0.gradle"
 
 gradlePlugin {

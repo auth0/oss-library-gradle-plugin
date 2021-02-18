@@ -7,6 +7,7 @@ import com.auth0.gradle.oss.tasks.ChangeLogTask
 import com.auth0.gradle.oss.tasks.ReadmeTask
 import com.auth0.gradle.oss.tasks.ReleaseTask
 import com.auth0.gradle.oss.versioning.Semver
+import me.champeau.gradle.japicmp.JapicmpTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -24,6 +25,7 @@ class LibraryPlugin implements Plugin<Project> {
         java(project)
         maven(project)
         bintray(project)
+        japiCmp(project)
     }
 
     private void java(Project project) {
@@ -210,4 +212,45 @@ class LibraryPlugin implements Plugin<Project> {
             }
         }
     }
+
+    private void japiCmp(Project project) {
+        project.afterEvaluate {
+            def lib = project.extensions.oss
+            def baselineVersion = lib.baselineVersion
+            if (baselineVersion) {
+                project.configure(project) {
+                    apply plugin: 'me.champeau.gradle.japicmp'
+                    task('apiDiff', type: JapicmpTask, dependsOn: 'jar') {
+                        oldClasspath = files(getBaselineJar(project, baselineVersion))
+                        newClasspath = files("$buildDir/libs/${project.name}-${project.version}.jar")
+                        onlyModified = true
+                        failOnModification = true
+                        ignoreMissingClasses = true
+                        htmlOutputFile = file("$buildDir/reports/apiDiff/apiDiff.html")
+                        txtOutputFile = file("$buildDir/reports/apiDiff/apiDiff.txt")
+                        doLast {
+                            project.logger.quiet("Comparing against baseline version ${baselineVersion}")
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private static File getBaselineJar(Project project, String baselineVersion) {
+        // Use detached configuration: https://github.com/square/okhttp/blob/master/build.gradle#L270
+        def group = project.group
+        try {
+            def baseline = "${project.group}:${project.name}:$baselineVersion"
+            project.group = 'virtual_group_for_japicmp'
+            def dependency = project.dependencies.create(baseline + "@jar")
+            return project.configurations.detachedConfiguration(dependency).files.find {
+                it.name ==  "${project.name}-${baselineVersion}.jar"
+            }
+        } finally {
+            project.group = group
+        }
+    }
+
 }
