@@ -224,7 +224,7 @@ class LibraryPlugin implements Plugin<Project> {
                 apply plugin: 'me.champeau.gradle.japicmp'
                 task('apiDiff', type: JapicmpTask, dependsOn: 'jar') {
                     oldClasspath = files(getBaselineJar(project, baselineVersion))
-                    newClasspath = files("$buildDir/libs/${project.name}-${project.version}.jar")
+                    newClasspath = files(jar.archiveFile)
                     onlyModified = true
                     failOnModification = true
                     ignoreMissingClasses = true
