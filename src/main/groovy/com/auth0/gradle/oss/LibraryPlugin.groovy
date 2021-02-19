@@ -217,20 +217,21 @@ class LibraryPlugin implements Plugin<Project> {
         project.afterEvaluate {
             def lib = project.extensions.oss
             def baselineVersion = lib.baselineVersion
-            if (baselineVersion) {
-                project.configure(project) {
-                    apply plugin: 'me.champeau.gradle.japicmp'
-                    task('apiDiff', type: JapicmpTask, dependsOn: 'jar') {
-                        oldClasspath = files(getBaselineJar(project, baselineVersion))
-                        newClasspath = files("$buildDir/libs/${project.name}-${project.version}.jar")
-                        onlyModified = true
-                        failOnModification = true
-                        ignoreMissingClasses = true
-                        htmlOutputFile = file("$buildDir/reports/apiDiff/apiDiff.html")
-                        txtOutputFile = file("$buildDir/reports/apiDiff/apiDiff.txt")
-                        doLast {
-                            project.logger.quiet("Comparing against baseline version ${baselineVersion}")
-                        }
+            if (!baselineVersion) {
+                return
+            }
+            project.configure(project) {
+                apply plugin: 'me.champeau.gradle.japicmp'
+                task('apiDiff', type: JapicmpTask, dependsOn: 'jar') {
+                    oldClasspath = files(getBaselineJar(project, baselineVersion))
+                    newClasspath = files("$buildDir/libs/${project.name}-${project.version}.jar")
+                    onlyModified = true
+                    failOnModification = true
+                    ignoreMissingClasses = true
+                    htmlOutputFile = file("$buildDir/reports/apiDiff/apiDiff.html")
+                    txtOutputFile = file("$buildDir/reports/apiDiff/apiDiff.txt")
+                    doLast {
+                        project.logger.quiet("Comparing against baseline version ${baselineVersion}")
                     }
                 }
             }
