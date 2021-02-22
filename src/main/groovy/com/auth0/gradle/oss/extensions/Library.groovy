@@ -5,5 +5,5 @@ class Library {
     String organization
     String repository
     String description
-    String baselineVersion
+    String baselineCompareVersion
 }

@@ -216,7 +216,7 @@ class LibraryPlugin implements Plugin<Project> {
     private void japiCmp(Project project) {
         project.afterEvaluate {
             def lib = project.extensions.oss
-            def baselineVersion = lib.baselineVersion
+            def baselineVersion = lib.baselineCompareVersion
             if (!baselineVersion) {
                 return
             }
