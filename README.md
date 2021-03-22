@@ -37,7 +37,7 @@ buildscript {
 Now in order to apply it, go to the app's `build.gradle` file and add the fully qualified package + class name. Note there are no quotes around it. In the case of an Android app, it will look like this:
 
 ```groovy
-apply plugin: com.auth0.gradle.oss.AndroidLibraryPlugin
+apply plugin: 'com.auth0.gradle.oss.AndroidLibraryPlugin'
 
 //...
 android {
@@ -53,7 +53,7 @@ android {
 For java libraries, the Plugin name will be different:
 
 ```groovy
-apply plugin: com.auth0.gradle.oss.LibraryPlugin
+apply plugin: 'com.auth0.gradle.oss.LibraryPlugin'
 ```
 
 Go ahead and sync the project with the gradle files. If everything went right, your project is now using the most recent local version of the plugin. 

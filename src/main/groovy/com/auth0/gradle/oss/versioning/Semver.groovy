@@ -4,7 +4,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.logging.Logging
 
 class Semver {
-    @Lazy String version = {
+    @Lazy
+    String version = {
         def stable = "$major.$minor.$patch"
         if (snapshot) {
             return "$stable-SNAPSHOT"
@@ -13,14 +14,15 @@ class Semver {
             stable += "-$prerelease.$prereleaseCount"
         }
         stable
-    } ()
-    @Lazy String nonSnapshot = {
+    }()
+    @Lazy
+    String nonSnapshot = {
         def stable = "$major.$minor.$patch"
         if (prerelease != null) {
             stable += "-$prerelease.$prereleaseCount"
         }
         stable
-    } ()
+    }()
     boolean snapshot
     String major
     String minor
@@ -60,7 +62,10 @@ class Semver {
     }
 
     String nextMajor(String prerelease = null) {
-        def major = Integer.parseInt(this.major) + 1
+        def major = Integer.parseInt(this.major)
+        if (isStable()){
+            major += 1
+        }
         def stable = "$major.0.0"
         if (prerelease != null) {
             stable += "-$prerelease.1"
@@ -80,6 +85,13 @@ class Semver {
         return "$major.$minor.$patch-$prerelease.$count"
     }
 
+    String nextBeta() {
+        def count = 0
+        if (this.prereleaseCount != null) {
+            count = Integer.parseInt(this.prereleaseCount) + 1
+        }
+        return "$major.$minor.$patch-beta.$count"
+    }
 
     @Override
     String toString() {

@@ -140,8 +140,35 @@ class LibraryPlugin implements Plugin<Project> {
         def semver = Semver.current()
         project.version = semver.version
         def version = semver.nonSnapshot
+        def nextBeta = semver.nextBeta()
+        def nextMajor = semver.nextMajor()
         def nextMinor = semver.nextMinor()
         def nextPatch = semver.nextPatch()
+        // beta releases
+        project.task('changelogBeta', type: ChangeLogTask) {
+            current = version
+            next = nextBeta
+        }
+        project.task('readmeBeta', type: ReadmeTask, dependsOn: 'changelogBeta') {
+            current = version
+            next = nextBeta
+        }
+        project.task('releaseBeta', type: ReleaseTask, dependsOn: 'readmeBeta') {
+            tagName = nextBeta
+        }
+        // major releases
+        project.task('changelogMajor', type: ChangeLogTask) {
+            current = version
+            next = nextMajor
+        }
+        project.task('readmeMajor', type: ReadmeTask, dependsOn: 'changelogMajor') {
+            current = version
+            next = nextMajor
+        }
+        project.task('releaseMajor', type: ReleaseTask, dependsOn: 'readmeMajor') {
+            tagName = nextMajor
+        }
+        // minor releases
         project.task('changelogMinor', type: ChangeLogTask) {
             current = version
             next = nextMinor
