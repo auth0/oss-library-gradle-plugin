@@ -37,11 +37,6 @@ class AndroidLibraryPlugin implements Plugin<Project> {
                 project.javadoc.classpath += variant.javaCompile.classpath
             }
             project.publishToMavenLocal.dependsOn project.assemble
-            def bintrayUpload = project.tasks.findByName("bintrayUpload")
-            if (bintrayUpload) {
-                bintrayUpload.dependsOn project.assemble
-            }
-
         }
     }
 
