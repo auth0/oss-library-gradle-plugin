@@ -142,8 +142,10 @@ class LibraryPlugin implements Plugin<Project> {
                         // Note: New non-existing packages uploaded since Feb 2021 use a different URL. See https://central.sonatype.org/pages/ossrh-guide.html
                         // url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                         credentials {
-                            username = ossrhUsername
-                            password = ossrhPassword
+                            // Attempts to find the Sonatype credentials.
+                            // Fallback values are required so the plugin can still be applied.
+                            username = project.findProperty('ossrhUsername') ?: "Missing ossrhUsername"
+                            password = project.findProperty('ossrhPassword') ?: "Missing ossrhPassword"
                         }
                     }
                 }
