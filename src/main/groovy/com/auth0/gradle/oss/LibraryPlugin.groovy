@@ -1,6 +1,6 @@
 package com.auth0.gradle.oss
 
-import com.auth0.gradle.oss.credentials.BintrayCredentials
+import com.auth0.gradle.oss.credentials.SonatypeConfiguration
 import com.auth0.gradle.oss.extensions.Developer
 import com.auth0.gradle.oss.extensions.Library
 import com.auth0.gradle.oss.tasks.ChangeLogTask
@@ -13,7 +13,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.plugins.signing.Sign
 
 class LibraryPlugin implements Plugin<Project> {
     @Override
@@ -24,7 +26,6 @@ class LibraryPlugin implements Plugin<Project> {
         release(project)
         java(project)
         maven(project)
-        bintray(project)
         japiCmp(project)
     }
 
@@ -32,6 +33,7 @@ class LibraryPlugin implements Plugin<Project> {
         project.configure(project) {
             apply plugin: 'java-library'
             apply plugin: 'maven-publish'
+            apply plugin: 'signing'
             task('sourcesJar', type: Jar, dependsOn: classes) {
                 classifier = 'sources'
                 from sourceSets.main.allSource
@@ -65,72 +67,107 @@ class LibraryPlugin implements Plugin<Project> {
     private void maven(Project project, String packaging = 'jar') {
         def lib = project.extensions.oss
         project.configure(project) {
-            publishing.publications.all {
-                pom.withXml {
-                    def root = asNode()
+            publishing {
+                publications.all {
+                    pom.withXml {
+                        def root = asNode()
 
-                    root.appendNode('packaging', packaging)
-                    root.appendNode('name', lib.name)
-                    root.appendNode('description', lib.description)
-                    root.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
+                        root.appendNode('packaging', packaging)
+                        root.appendNode('name', lib.name)
+                        root.appendNode('description', lib.description)
+                        root.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
 
-                    def developersNode = root.appendNode('developers')
-                    project.oss.extensions.developers.each {
-                        def node = developersNode.appendNode('developer')
-                        node.appendNode('id', it.name)
-                        node.appendNode('name', it.displayName)
-                        node.appendNode('email', it.email)
-                    }
+                        def developersNode = root.appendNode('developers')
+                        project.oss.extensions.developers.each {
+                            def node = developersNode.appendNode('developer')
+                            node.appendNode('id', it.name)
+                            node.appendNode('name', it.displayName)
+                            node.appendNode('email', it.email)
+                        }
 
-                    def dependenciesNode = root.appendNode('dependencies')
-                    def artifacts = []
+                        def dependenciesNode = root.appendNode('dependencies')
+                        def artifacts = []
 
-                    ext.addDependency = { Dependency dep, String scope ->
-                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                            return // ignore invalid dependencies
-                        if (artifacts.contains("${dep.group}:${dep.name}"))
-                            return // ignore duplicates
+                        ext.addDependency = { Dependency dep, String scope ->
+                            if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                                return // ignore invalid dependencies
+                            if (artifacts.contains("${dep.group}:${dep.name}"))
+                                return // ignore duplicates
 
-                        final dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', dep.group)
-                        dependencyNode.appendNode('artifactId', dep.name)
-                        dependencyNode.appendNode('version', dep.version)
-                        dependencyNode.appendNode('scope', scope)
-                        artifacts.add("${dep.group}:${dep.name}")
+                            final dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dep.group)
+                            dependencyNode.appendNode('artifactId', dep.name)
+                            dependencyNode.appendNode('version', dep.version)
+                            dependencyNode.appendNode('scope', scope)
+                            artifacts.add("${dep.group}:${dep.name}")
 
-                        if (!dep.transitive) {
-                            // If this dependency is transitive, we should force exclude all its dependencies them from the POM
-                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                            exclusionNode.appendNode('groupId', '*')
-                            exclusionNode.appendNode('artifactId', '*')
-                        } else if (!dep.properties.excludeRules.empty) {
-                            // Otherwise add specified exclude rules
-                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                            dep.properties.excludeRules.each { ExcludeRule rule ->
-                                exclusionNode.appendNode('groupId', rule.group ?: '*')
-                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            if (!dep.transitive) {
+                                // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                                final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                                exclusionNode.appendNode('groupId', '*')
+                                exclusionNode.appendNode('artifactId', '*')
+                            } else if (!dep.properties.excludeRules.empty) {
+                                // Otherwise add specified exclude rules
+                                final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                                dep.properties.excludeRules.each { ExcludeRule rule ->
+                                    exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                    exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                                }
                             }
                         }
+
+                        // List all "compile" dependencies (for Gradle < 3.x)
+                        configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                        // List all "api" dependencies (for new Gradle) as "compile" dependencies
+                        configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+                        // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                        configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+                        // List all "compileOnly" dependencies (for new Gradle) as "provided" dependencies
+                        configurations.compileOnly.getDependencies().each { dep -> addDependency(dep, "provided") }
+
+                        def licenceNode = root.appendNode('licenses').appendNode('license')
+                        licenceNode.appendNode('name', 'The MIT License (MIT)')
+                        licenceNode.appendNode('url', "https://raw.githubusercontent.com/${lib.organization}/${lib.repository}/master/LICENSE")
+                        licenceNode.appendNode('distribution', 'repo')
+
+                        def scmNode = root.appendNode('scm')
+                        scmNode.appendNode('connection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
+                        scmNode.appendNode('developerConnection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
+                        scmNode.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
                     }
+                }
+                repositories {
+                    maven {
+                        url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                        // Note: New non-existing packages uploaded since Feb 2021 use a different URL. See https://central.sonatype.org/pages/ossrh-guide.html
+                        // url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                        credentials {
+                            username = ossrhUsername
+                            password = ossrhPassword
+                        }
+                    }
+                }
+            }
+            // gpg signing task
+            signing {
+                afterEvaluate {
+                    required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+                    sign publishing.publications
+                }
+            }
+        }
 
-                    // List all "compile" dependencies (for Gradle < 3.x)
-                    configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
-                    // List all "api" dependencies (for new Gradle) as "compile" dependencies
-                    configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
-                    // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
-                    configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
-                    // List all "compileOnly" dependencies (for new Gradle) as "provided" dependencies
-                    configurations.compileOnly.getDependencies().each { dep -> addDependency(dep, "provided") }
-
-                    def licenceNode = root.appendNode('licenses').appendNode('license')
-                    licenceNode.appendNode('name', 'The MIT License (MIT)')
-                    licenceNode.appendNode('url', "https://raw.githubusercontent.com/${lib.organization}/${lib.repository}/master/LICENSE")
-                    licenceNode.appendNode('distribution', 'repo')
-
-                    def scmNode = root.appendNode('scm')
-                    scmNode.appendNode('connection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
-                    scmNode.appendNode('developerConnection', "scm:git@github.com:${lib.organization}/${lib.repository}.git")
-                    scmNode.appendNode('url', "https://github.com/${lib.organization}/${lib.repository}")
+        def sonatypeConfiguration = new SonatypeConfiguration(project)
+        project.tasks.withType(Sign) {
+            doFirst {
+                sonatypeConfiguration.assertSigningConfiguration()
+            }
+        }
+        project.tasks.withType(PublishToMavenRepository) {
+            doFirst {
+                sonatypeConfiguration.assertSonatypeCredentials()
+                if (!project.ext.isReleaseVersion) {
+                    project.logger.warn("WARN: Upload to a remote repository is not available when the version is of type snapshot. Version found: $project.version")
                 }
             }
         }
@@ -140,8 +177,36 @@ class LibraryPlugin implements Plugin<Project> {
         def semver = Semver.current()
         project.version = semver.version
         def version = semver.nonSnapshot
+        project.ext.isReleaseVersion = !semver.snapshot
+        def nextBeta = semver.nextBeta()
+        def nextMajor = semver.nextMajor()
         def nextMinor = semver.nextMinor()
         def nextPatch = semver.nextPatch()
+        // beta releases
+        project.task('changelogBeta', type: ChangeLogTask) {
+            current = version
+            next = nextBeta
+        }
+        project.task('readmeBeta', type: ReadmeTask, dependsOn: 'changelogBeta') {
+            current = version
+            next = nextBeta
+        }
+        project.task('releaseBeta', type: ReleaseTask, dependsOn: 'readmeBeta') {
+            tagName = nextBeta
+        }
+        // major releases
+        project.task('changelogMajor', type: ChangeLogTask) {
+            current = version
+            next = nextMajor
+        }
+        project.task('readmeMajor', type: ReadmeTask, dependsOn: 'changelogMajor') {
+            current = version
+            next = nextMajor
+        }
+        project.task('releaseMajor', type: ReleaseTask, dependsOn: 'readmeMajor') {
+            tagName = nextMajor
+        }
+        // minor releases
         project.task('changelogMinor', type: ChangeLogTask) {
             current = version
             next = nextMinor
@@ -180,39 +245,6 @@ class LibraryPlugin implements Plugin<Project> {
         }
     }
 
-    private void bintray(Project project) {
-        def credentials = new BintrayCredentials(project)
-
-        if (credentials.valid()) {
-            project.pluginManager.apply('com.jfrog.bintray')
-            project.configure(project) {
-                bintray {
-                    user = credentials.user
-                    key = credentials.key
-                    publications = ['mavenJava']
-                    dryRun = project.version.endsWith("-SNAPSHOT")
-                    publish = false
-                    pkg {
-                        repo = 'java'
-                        name = project.name
-                        licenses = ["MIT"]
-                        userOrg = 'auth0'
-                        publish = false
-                        version {
-                            gpg {
-                                sign = true
-                                passphrase = credentials.passphrasse
-                            }
-                            vcsTag = project.version
-                            name = project.version
-                            released = new Date()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private void japiCmp(Project project) {
         project.afterEvaluate {
             def lib = project.extensions.oss
@@ -247,7 +279,7 @@ class LibraryPlugin implements Plugin<Project> {
             project.group = 'virtual_group_for_japicmp'
             def dependency = project.dependencies.create(baseline + "@jar")
             return project.configurations.detachedConfiguration(dependency).files.find {
-                it.name ==  "${project.name}-${baselineVersion}.jar"
+                it.name == "${project.name}-${baselineVersion}.jar"
             }
         } finally {
             project.group = group
