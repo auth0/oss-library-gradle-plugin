@@ -15,6 +15,8 @@ import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.javadoc.Javadoc
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.plugins.signing.Sign
 
 class LibraryPlugin implements Plugin<Project> {
@@ -42,7 +44,16 @@ class LibraryPlugin implements Plugin<Project> {
                 classifier = 'javadoc'
                 from javadoc.getDestinationDir()
             }
-
+            tasks.withType(Javadoc).configureEach {
+                javadocTool = javaToolchains.javadocToolFor {
+                    // Use latest JDK for javadoc generation
+                    languageVersion = JavaLanguageVersion.of(16)
+                }
+            }
+            javadoc {
+                // Specify the Java version that the project will use
+                options.addStringOption('-release', "8")
+            }
             artifacts {
                 archives sourcesJar, javadocJar
             }
