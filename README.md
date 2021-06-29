@@ -153,7 +153,38 @@ This will place the jar in the `build/libs/` folder
 │   │   └── oss-library-x.y.z.jar
 ```
 
-Open the project you want to use this plugin on. From the project-wide `build.gradle` file, edit the builscript dependencies to reference the jar file:
+### Using the PluginManagement syntax (easiest)
+
+In the project `settings.gradle` file or where you declare the `pluginManagement` block, add the plugin project directly using the `includeBuild` method.
+
+```gradle
+// settings.gradle
+pluginManagement {
+    includeBuild '/path/to/oss-library-gradle-plugin'
+    repositories {
+        gradlePluginPortal()
+    }
+    plugins {
+        // No need to add the plugin here
+    }
+}
+```
+
+Then in the app's `build.gradle` file, apply the plugin:
+
+```gradle
+plugin {
+    id 'java'
+    id 'com.auth0.gradle.oss-library.java'
+}
+```
+
+Sync the gradle project to refresh the changes in the plugin code. No need to package or publish the jar. If everything went right, your project is now using the most recent local version of the plugin. 
+
+
+### Without the PluginManagement syntax
+
+Open the project you want to use this plugin on. From the project-wide `build.gradle` file, edit the builscript block dependencies to reference the local jar file:
 
 ```groovy
 buildscript {
@@ -165,7 +196,7 @@ buildscript {
 }
 ```
 
-Now in order to apply it, go to the app's `build.gradle` file and add the fully qualified package + class name. Note there are no quotes around it. In the case of an Android app, it will look like this:
+Then in the app's `build.gradle` file, apply the plugin using the fully qualified package + class name. In the case of an Android app, it will look like this:
 
 ```groovy
 // old plugin syntax
@@ -173,14 +204,20 @@ apply plugin: 'com.auth0.gradle.oss.AndroidLibraryPlugin'
 
 // new plugin syntax
 plugins {
-    id "com.auth0.gradle.oss-library.android"
+    id 'com.auth0.gradle.oss-library.android'
 }
 ```
 
-For java libraries, the Plugin name will be different:
+For java libraries, the Plugin name changes:
 
 ```groovy
+// old plugin syntax
 apply plugin: 'com.auth0.gradle.oss.LibraryPlugin'
+
+// new plugin syntax
+plugins {
+    id 'com.auth0.gradle.oss-library.java'
+}
 ```
 
 Go ahead and sync the project with the gradle files. If everything went right, your project is now using the most recent local version of the plugin. 
