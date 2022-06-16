@@ -25,6 +25,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
         project.rootProject.pluginManager.apply(RootProjectPlugin)
         project.extensions.create('oss', Library)
         project.oss.extensions.developers = project.container(Developer)
+        project.ext.isSnapshot = project.hasProperty('isSnapshot') ? project.isSnapshot.toBoolean() : true
         release(project)
         java(project)
         maven(project)
@@ -228,7 +229,8 @@ class AndroidLibraryPlugin implements Plugin<Project> {
     }
 
     private void release(Project project) {
-        def semver = Semver.current()
+        def hasVersion = project.version != null && project.version != "unspecified"
+        def semver = hasVersion ? new Semver(project.version, project.ext.isSnapshot) : Semver.current()
         project.version = semver.version
         project.ext.isReleaseVersion = !semver.snapshot
         def version = semver.nonSnapshot
