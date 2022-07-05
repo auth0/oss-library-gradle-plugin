@@ -18,7 +18,7 @@ tasks.wrapper {
 dependencies {
     implementation "me.champeau.gradle:japicmp-gradle-plugin:0.2.9"
     // needed because of https://github.com/melix/japicmp-gradle-plugin/issues/36
-    implementation 'com.google.guava:guava:28.2-jre'
+    implementation 'com.google.guava:guava:30.0-jre'
     testImplementation("org.spockframework:spock-core:1.0-groovy-2.4") {
         exclude module: 'groovy-all'
     }
