@@ -6,4 +6,5 @@ class Library {
     String repository
     String description
     String baselineCompareVersion
+    Boolean skipAssertSigningConfiguration
 }

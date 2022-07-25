@@ -174,7 +174,9 @@ class LibraryPlugin implements Plugin<Project> {
         def sonatypeConfiguration = new SonatypeConfiguration(project)
         project.tasks.withType(Sign) {
             doFirst {
-                sonatypeConfiguration.assertSigningConfiguration()
+                if (!lib.skipAssertSigningConfiguration) {
+                    sonatypeConfiguration.assertSigningConfiguration()
+                }
             }
         }
         project.tasks.withType(PublishToMavenRepository) {
