@@ -48,7 +48,7 @@ class LibraryPlugin implements Plugin<Project> {
             tasks.withType(Javadoc).configureEach {
                 javadocTool = javaToolchains.javadocToolFor {
                     // Use latest JDK for javadoc generation
-                    languageVersion = JavaLanguageVersion.of(16)
+                    languageVersion = JavaLanguageVersion.of(17)
                 }
             }
             javadoc {
