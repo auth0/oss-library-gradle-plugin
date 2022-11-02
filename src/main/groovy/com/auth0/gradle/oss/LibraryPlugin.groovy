@@ -15,6 +15,7 @@ import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.plugins.signing.Sign
@@ -33,6 +34,7 @@ class LibraryPlugin implements Plugin<Project> {
     }
 
     private void java(Project project) {
+        def lib = project.extensions.oss
         project.configure(project) {
             apply plugin: 'java-library'
             apply plugin: 'maven-publish'
@@ -50,6 +52,49 @@ class LibraryPlugin implements Plugin<Project> {
                     // Use latest JDK for javadoc generation
                     languageVersion = JavaLanguageVersion.of(17)
                 }
+            }
+            tasks.register('testJava8', Test) {
+                description = 'Runs unit tests on Java 8.'
+                group = 'verification'
+                javaLauncher.set(javaToolchains.launcherFor {
+                    languageVersion = JavaLanguageVersion.of(8)
+                })
+                if(lib.enableJava8Testing) {
+                    shouldRunAfter(tasks.named('test'))
+                } else {
+                    enabled = false
+                }
+            }
+            tasks.register('testJava11', Test) {
+                description = 'Runs unit tests on Java 11.'
+                group = 'verification'
+
+                javaLauncher.set(javaToolchains.launcherFor {
+                    languageVersion = JavaLanguageVersion.of(11)
+                })
+                if(lib.enableJava11Testing) {
+                    shouldRunAfter(tasks.named('test'))
+                } else {
+                    enabled = false
+                }
+            }
+            tasks.register('testJava17', Test) {
+                description = 'Runs unit tests on Java 17.'
+                group = 'verification'
+
+                javaLauncher.set(javaToolchains.launcherFor {
+                    languageVersion = JavaLanguageVersion.of(17)
+                })
+                if(lib.enableJava17Testing) {
+                    shouldRunAfter(tasks.named('test'))
+                } else {
+                    enabled = false
+                }
+            }
+            tasks.named('check') {
+                dependsOn(testJava8)
+                dependsOn(testJava11)
+                dependsOn(testJava17)
             }
             javadoc {
                 // Specify the Java version that the project will use
