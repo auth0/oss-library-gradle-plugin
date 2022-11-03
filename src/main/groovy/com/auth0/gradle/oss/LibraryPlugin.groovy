@@ -15,6 +15,7 @@ import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.plugins.signing.Sign
@@ -33,6 +34,7 @@ class LibraryPlugin implements Plugin<Project> {
     }
 
     private void java(Project project) {
+        def lib = project.extensions.oss
         project.configure(project) {
             apply plugin: 'java-library'
             apply plugin: 'maven-publish'
@@ -49,6 +51,24 @@ class LibraryPlugin implements Plugin<Project> {
                 javadocTool = javaToolchains.javadocToolFor {
                     // Use latest JDK for javadoc generation
                     languageVersion = JavaLanguageVersion.of(17)
+                }
+            }
+            project.afterEvaluate {
+                for (ossPluginJavaTestVersion in lib.testInJavaVersions) {
+                    def taskName = "testInJava-${ossPluginJavaTestVersion}"
+                    tasks.register(taskName, Test) {
+                        def versionToUse = taskName.split("-").getAt(1) as Integer
+                        println "Test will be running in ${versionToUse}"
+                        description = "Runs unit tests on different Java version ${versionToUse}."
+                        group = 'verification'
+                        javaLauncher.set(javaToolchains.launcherFor {
+                            languageVersion = JavaLanguageVersion.of(versionToUse)
+                        })
+                        shouldRunAfter(tasks.named('test'))
+                    }
+                    tasks.named('check') {
+                        dependsOn(taskName)
+                    }
                 }
             }
             javadoc {

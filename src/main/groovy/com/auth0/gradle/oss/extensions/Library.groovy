@@ -7,4 +7,5 @@ class Library {
     String description
     String baselineCompareVersion
     Boolean skipAssertSigningConfiguration
+    Integer[] testInJavaVersions
 }
