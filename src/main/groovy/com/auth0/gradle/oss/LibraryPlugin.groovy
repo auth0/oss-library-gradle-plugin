@@ -53,48 +53,23 @@ class LibraryPlugin implements Plugin<Project> {
                     languageVersion = JavaLanguageVersion.of(17)
                 }
             }
-            tasks.register('testJava8', Test) {
-                description = 'Runs unit tests on Java 8.'
-                group = 'verification'
-                javaLauncher.set(javaToolchains.launcherFor {
-                    languageVersion = JavaLanguageVersion.of(8)
-                })
-                if(lib.enableJava8Testing) {
-                    shouldRunAfter(tasks.named('test'))
-                } else {
-                    enabled = false
+            project.afterEvaluate {
+                for (ossPluginJavaTestVersion in lib.testInJavaVersions) {
+                    def taskName = "testInJava-${ossPluginJavaTestVersion}"
+                    tasks.register(taskName, Test) {
+                        def versionToUse = taskName.split("-").getAt(1) as Integer
+                        println "Test will be running in ${versionToUse}"
+                        description = "Runs unit tests on different Java version ${versionToUse}."
+                        group = 'verification'
+                        javaLauncher.set(javaToolchains.launcherFor {
+                            languageVersion = JavaLanguageVersion.of(versionToUse)
+                        })
+                        shouldRunAfter(tasks.named('test'))
+                    }
+                    tasks.named('check') {
+                        dependsOn(taskName)
+                    }
                 }
-            }
-            tasks.register('testJava11', Test) {
-                description = 'Runs unit tests on Java 11.'
-                group = 'verification'
-
-                javaLauncher.set(javaToolchains.launcherFor {
-                    languageVersion = JavaLanguageVersion.of(11)
-                })
-                if(lib.enableJava11Testing) {
-                    shouldRunAfter(tasks.named('test'))
-                } else {
-                    enabled = false
-                }
-            }
-            tasks.register('testJava17', Test) {
-                description = 'Runs unit tests on Java 17.'
-                group = 'verification'
-
-                javaLauncher.set(javaToolchains.launcherFor {
-                    languageVersion = JavaLanguageVersion.of(17)
-                })
-                if(lib.enableJava17Testing) {
-                    shouldRunAfter(tasks.named('test'))
-                } else {
-                    enabled = false
-                }
-            }
-            tasks.named('check') {
-                dependsOn(testJava8)
-                dependsOn(testJava11)
-                dependsOn(testJava17)
             }
             javadoc {
                 // Specify the Java version that the project will use
