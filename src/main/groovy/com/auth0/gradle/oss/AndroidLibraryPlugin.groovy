@@ -61,7 +61,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
             apply plugin: 'signing'
             task('sourcesJar', type: Jar) {
                 from android.sourceSets.main.java.srcDirs
-                classifier = 'sources'
+                archiveClassifier = 'sources'
             }
 
             task('javadoc', type: Javadoc) {
@@ -82,7 +82,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
             }
 
             task('javadocJar', type: Jar, dependsOn: javadoc) {
-                classifier = 'javadoc'
+                archiveClassifier = 'javadoc'
                 from javadoc.destinationDir
             }
 

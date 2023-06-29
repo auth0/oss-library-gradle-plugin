@@ -12,3 +12,4 @@ out/
 */bin/
 *.swp
 local.properties
+.DS_Store
