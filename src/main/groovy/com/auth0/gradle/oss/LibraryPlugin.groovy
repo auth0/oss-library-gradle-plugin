@@ -40,11 +40,11 @@ class LibraryPlugin implements Plugin<Project> {
             apply plugin: 'maven-publish'
             apply plugin: 'signing'
             task('sourcesJar', type: Jar, dependsOn: classes) {
-                classifier = 'sources'
+                archiveClassifier = 'sources'
                 from sourceSets.main.allSource
             }
             task('javadocJar', type: Jar, dependsOn: javadoc) {
-                classifier = 'javadoc'
+                archiveClassifier = 'javadoc'
                 from javadoc.getDestinationDir()
             }
             tasks.withType(Javadoc).configureEach {
