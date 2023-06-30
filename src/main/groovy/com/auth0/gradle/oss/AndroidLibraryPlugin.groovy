@@ -205,6 +205,7 @@ class AndroidLibraryPlugin implements Plugin<Project> {
             }
             // gpg signing task
             signing {
+                dependsOn 'jar'
                 afterEvaluate {
                     required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
                     sign publishing.publications

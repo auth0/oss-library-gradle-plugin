@@ -70,9 +70,6 @@ class LibraryPlugin implements Plugin<Project> {
                         dependsOn(taskName)
                     }
                 }
-                // tasks.named('signMavenJavaPublication') {
-                //     dependsOn('jar')
-                // }
             }
             javadoc {
                 // Specify the Java version that the project will use
