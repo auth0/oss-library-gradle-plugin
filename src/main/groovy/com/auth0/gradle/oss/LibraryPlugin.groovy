@@ -70,6 +70,9 @@ class LibraryPlugin implements Plugin<Project> {
                         dependsOn(taskName)
                     }
                 }
+                // tasks.named('signMavenJavaPublication') {
+                //     dependsOn('jar')
+                // }
             }
             javadoc {
                 // Specify the Java version that the project will use
@@ -149,7 +152,8 @@ class LibraryPlugin implements Plugin<Project> {
                         }
 
                         // List all "compile" dependencies (for Gradle < 3.x)
-                        configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                        // TODO not needed anymore?
+                        // configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
                         // List all "api" dependencies (for new Gradle) as "compile" dependencies
                         configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
                         // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
@@ -193,6 +197,7 @@ class LibraryPlugin implements Plugin<Project> {
 
         def sonatypeConfiguration = new SonatypeConfiguration(project)
         project.tasks.withType(Sign) {
+            dependsOn 'jar'
             doFirst {
                 if (!lib.skipAssertSigningConfiguration) {
                     sonatypeConfiguration.assertSigningConfiguration()
