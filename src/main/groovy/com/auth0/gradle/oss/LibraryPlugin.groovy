@@ -177,7 +177,7 @@ class LibraryPlugin implements Plugin<Project> {
                             // Attempts to find the Sonatype credentials.
                             // Fallback values are required so the plugin can still be applied.
                             username = project.findProperty('ossrhUsername') ?: "Missing ossrhUsername"
-                            password = project.findProperty('ossrhPassword') ?: "Missing ossrhPassword"
+                            password = project.findProperty('ossrhToken') ?: "Missing ossrhToken"
                         }
                     }
                 }
