@@ -11,9 +11,9 @@ class SonatypeConfiguration {
     }
 
     def assertSonatypeCredentials() {
-        def sonatypeConfigured = project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')
+        def sonatypeConfigured = project.hasProperty('ossrhUsername') && project.hasProperty('ossrhToken')
         if (!sonatypeConfigured) {
-            throw new GradleException("Missing Sonatype credentials. Please, provide 'ossrhUsername' and 'ossrhPassword' properties. Read more at https://github.com/auth0/oss-library-gradle-plugin.")
+            throw new GradleException("Missing Sonatype credentials. Please, provide 'ossrhUsername' and 'ossrhToken' properties. Read more at https://github.com/auth0/oss-library-gradle-plugin.")
         }
     }
 
